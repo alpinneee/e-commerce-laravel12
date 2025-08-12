@@ -50,12 +50,16 @@ Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear')
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
+// Shipping calculation (no auth required)
+Route::post('/shipping/calculate', [CheckoutController::class, 'calculateShipping'])->name('shipping.calculate');
+
 // Checkout Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::get('/order/{order}/continue-payment', [CheckoutController::class, 'continuePayment'])->name('order.continue-payment');
 });
 
 // Midtrans Routes (no auth required for webhooks)
@@ -119,6 +123,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Admin Category Routes
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
     
+    // Admin Banner Routes
+    Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
+    
+    // Admin Product Size Routes
+    Route::get('/product-sizes', [\App\Http\Controllers\Admin\ProductSizeController::class, 'index'])->name('product-sizes.index');
+    Route::get('/products/{product}/sizes', [\App\Http\Controllers\Admin\ProductSizeController::class, 'show'])->name('product-sizes.show');
+    Route::post('/products/{product}/sizes', [\App\Http\Controllers\Admin\ProductSizeController::class, 'store'])->name('product-sizes.store');
+    Route::delete('/products/{product}/sizes/{size}', [\App\Http\Controllers\Admin\ProductSizeController::class, 'destroy'])->name('product-sizes.destroy');
+    
     // Admin Order Routes
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class)->except(['create', 'store', 'destroy']);
     Route::get('/orders/{order}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'invoice'])->name('orders.invoice');
@@ -173,10 +186,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Admin Help Routes
     Route::get('/help', [\App\Http\Controllers\Admin\HelpController::class, 'index'])->name('help.index');
     
-    // Admin Settings Routes (placeholder)
-    Route::get('/settings', function () {
-        return view('admin.settings.index');
-    })->name('settings');
+    // Admin Settings Routes
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
+    Route::put('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
 });
 
 // Laravel Breeze Routes

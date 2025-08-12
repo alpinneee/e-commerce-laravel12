@@ -1,83 +1,69 @@
 @extends('layouts.admin')
 
-@section('title', 'Settings')
+@section('title', 'Pengaturan Umum')
 
 @section('content')
-<div class="space-y-6 max-w-2xl mx-auto">
-    <!-- Page Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
-            <p class="text-gray-600">Pengaturan sistem</p>
-        </div>
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Pengaturan Umum</h1>
+        <p class="text-gray-600">Kelola pengaturan dasar website Anda</p>
     </div>
 
-    <!-- Form Pengaturan -->
-    <form class="bg-white rounded-lg shadow p-6 space-y-4">
-        <div>
-            <label class="block font-medium mb-1">Nama Aplikasi</label>
-            <input type="text" name="app_name" value="{{ config('app.name') }}" class="w-full border rounded px-3 py-2" disabled>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Logo Aplikasi</label>
-            <div class="flex items-center gap-4">
-                <img src="{{ asset('logo.png') }}" alt="Logo" class="w-16 h-16 object-contain bg-gray-100 rounded border">
-                <input type="file" name="logo" class="border rounded px-3 py-2 w-full" disabled>
+    <div class="bg-white shadow rounded-lg p-6">
+        <form action="{{ route('admin.settings.update') }}" method="POST">
+            @csrf
+            @method('PUT')
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Website</label>
+                    <input type="text" name="site_name" value="{{ old('site_name', cache('settings.site_name', config('app.name'))) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    @error('site_name')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Kontak</label>
+                    <input type="email" name="contact_email" value="{{ old('contact_email', cache('settings.contact_email', 'admin@example.com')) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    @error('contact_email')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Email Pengirim</label>
-            <input type="email" name="mail_from" value="{{ config('mail.from.address') }}" class="w-full border rounded px-3 py-2" disabled>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Timezone</label>
-            <input type="text" name="timezone" value="{{ config('app.timezone') }}" class="w-full border rounded px-3 py-2" disabled>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Bahasa Default</label>
-            <select name="locale" class="w-full border rounded px-3 py-2" disabled>
-                <option value="id" {{ config('app.locale') == 'id' ? 'selected' : '' }}>Indonesia</option>
-                <option value="en" {{ config('app.locale') == 'en' ? 'selected' : '' }}>English</option>
-            </select>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Format Tanggal/Waktu</label>
-            <input type="text" name="date_format" value="d M Y H:i" class="w-full border rounded px-3 py-2" disabled>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Alamat Toko</label>
-            <textarea name="store_address" class="w-full border rounded px-3 py-2" rows="2" disabled>Jl. Contoh Alamat No. 123, Kota, Negara</textarea>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Nomor Telepon</label>
-            <input type="text" name="phone" value="08123456789" class="w-full border rounded px-3 py-2" disabled>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">WhatsApp</label>
-            <input type="text" name="whatsapp" value="08123456789" class="w-full border rounded px-3 py-2" disabled>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Link Sosial Media</label>
-            <div class="flex flex-col gap-2">
-                <input type="text" name="facebook" value="https://facebook.com/toko" class="w-full border rounded px-3 py-2" placeholder="Facebook" disabled>
-                <input type="text" name="instagram" value="https://instagram.com/toko" class="w-full border rounded px-3 py-2" placeholder="Instagram" disabled>
-                <input type="text" name="twitter" value="https://twitter.com/toko" class="w-full border rounded px-3 py-2" placeholder="Twitter" disabled>
+
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Website</label>
+                <textarea name="site_description" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('site_description', cache('settings.site_description', 'Toko sepatu online terbaik')) }}</textarea>
+                @error('site_description')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Custom Footer Text</label>
-            <input type="text" name="footer_text" value="&copy; {{ date('Y') }} Toko Sepatu. All rights reserved." class="w-full border rounded px-3 py-2" disabled>
-        </div>
-        <div>
-            <label class="block font-medium mb-1">Maintenance Mode</label>
-            <select name="maintenance" class="w-full border rounded px-3 py-2" disabled>
-                <option value="0">Nonaktif</option>
-                <option value="1">Aktif</option>
-            </select>
-        </div>
-        <div>
-            <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 opacity-50 cursor-not-allowed">Simpan (Demo)</button>
-        </div>
-    </form>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
+                    <input type="text" name="contact_phone" value="{{ old('contact_phone', cache('settings.contact_phone', '')) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('contact_phone')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Alamat</label>
+                    <input type="text" name="address" value="{{ old('address', cache('settings.address', '')) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('address')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-8">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium">
+                    Simpan Pengaturan
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
-@endsection 
+@endsection

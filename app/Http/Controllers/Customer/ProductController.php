@@ -95,7 +95,7 @@ class ProductController extends Controller
     {
         $product = Product::active()
             ->where('slug', $slug)
-            ->with(['category', 'images', 'reviews' => function($query) {
+            ->with(['category', 'images', 'sizes', 'reviews' => function($query) {
                 $query->approved()->with('user')->latest();
             }])
             ->firstOrFail();

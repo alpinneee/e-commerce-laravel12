@@ -83,6 +83,16 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Weight -->
+                <div>
+                    <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">Weight (gram)</label>
+                    <input type="number" name="weight" id="weight" value="{{ old('weight', $product->weight) }}" 
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    @error('weight')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Description -->
@@ -93,6 +103,29 @@
                 @error('description')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+            </div>
+
+            <!-- SEO Fields -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Meta Title -->
+                <div>
+                    <label for="meta_title" class="block text-sm font-medium text-gray-700 mb-2">Meta Title (SEO)</label>
+                    <input type="text" name="meta_title" id="meta_title" value="{{ old('meta_title', $product->meta_title) }}" 
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('meta_title')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Meta Description -->
+                <div>
+                    <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-2">Meta Description (SEO)</label>
+                    <textarea name="meta_description" id="meta_description" rows="3" 
+                              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('meta_description', $product->meta_description) }}</textarea>
+                    @error('meta_description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Current Images -->

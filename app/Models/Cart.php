@@ -17,6 +17,7 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'product_id',
+        'size',
         'quantity',
     ];
 
@@ -26,6 +27,7 @@ class Cart extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'size' => 'integer',
         'quantity' => 'integer',
     ];
 

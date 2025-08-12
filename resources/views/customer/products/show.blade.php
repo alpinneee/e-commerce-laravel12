@@ -155,10 +155,34 @@
                     </div>
                 </div>
 
-                @if($product->stock > 0)
+                @if($product->sizes->where('stock', '>', 0)->count() > 0)
                     <form action="{{ route('cart.add') }}" method="POST" class="mt-8">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        
+                        <!-- Size Selection -->
+                        <div class="mb-4">
+                            <label for="size" class="block text-sm font-medium text-gray-700">Ukuran</label>
+                            <div class="mt-2 grid grid-cols-5 gap-2">
+                                @foreach($product->sizes->sortBy('size') as $size)
+                                    @if($size->stock > 0)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="size" value="{{ $size->size }}" class="sr-only" required>
+                                            <div class="border-2 border-gray-300 rounded-md p-2 text-center text-sm font-medium hover:border-blue-500 focus-within:border-blue-500 transition-colors">
+                                                {{ $size->size }}
+                                            </div>
+                                        </label>
+                                    @else
+                                        <div class="border-2 border-gray-200 rounded-md p-2 text-center text-sm font-medium text-gray-400 cursor-not-allowed">
+                                            {{ $size->size }}
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                            @error('size')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                         
                         <div class="mb-4">
                             <label for="quantity" class="block text-sm font-medium text-gray-700">Jumlah</label>
@@ -329,6 +353,31 @@
 
 @push('scripts')
 <script>
+    const sizeStocks = @json($product->sizes->pluck('stock', 'size'));
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const sizeInputs = document.querySelectorAll('input[name="size"]');
+        const quantityInput = document.getElementById('quantity');
+        
+        sizeInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const selectedSize = this.value;
+                const maxStock = sizeStocks[selectedSize] || 0;
+                
+                quantityInput.max = maxStock;
+                if (parseInt(quantityInput.value) > maxStock) {
+                    quantityInput.value = maxStock;
+                }
+                
+                // Update visual feedback
+                sizeInputs.forEach(si => {
+                    si.nextElementSibling.classList.remove('border-blue-500', 'bg-blue-50');
+                });
+                this.nextElementSibling.classList.add('border-blue-500', 'bg-blue-50');
+            });
+        });
+    });
+    
     function decrementQuantity() {
         const input = document.getElementById('quantity');
         if (input.value > 1) {
@@ -336,8 +385,9 @@
         }
     }
 
-    function incrementQuantity(maxStock) {
+    function incrementQuantity() {
         const input = document.getElementById('quantity');
+        const maxStock = parseInt(input.max) || 1;
         if (parseInt(input.value) < maxStock) {
             input.value = parseInt(input.value) + 1;
         }

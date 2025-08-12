@@ -91,6 +91,14 @@ class Product extends Model
     }
 
     /**
+     * Get the sizes for the product.
+     */
+    public function sizes()
+    {
+        return $this->hasMany(ProductSize::class);
+    }
+
+    /**
      * Scope a query to only include active products.
      */
     public function scopeActive($query)

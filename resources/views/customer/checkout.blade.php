@@ -156,9 +156,9 @@
                             <img src="https://upload.wikimedia.org/wikipedia/commons/9/92/New_Logo_JNE.png" alt="JNE" class="h-8 w-auto mr-3">
                             <span class="font-medium text-gray-900">JNE (Jalur Nugraha Ekakurir)</span>
                         </div>
-                        <div class="p-4 space-y-3">
+                        <div class="p-4 space-y-3" id="shipping-options">
                             <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <input type="radio" name="shipping_expedition" value="jne_reg" class="text-blue-600 focus:ring-blue-500" data-cost="10000" data-estimation="2-3 hari">
+                                <input type="radio" name="shipping_expedition" value="jne_reg" class="text-blue-600 focus:ring-blue-500" data-cost="9000" data-estimation="2-3 hari">
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
                                         <div>
@@ -166,14 +166,14 @@
                                             <div class="text-sm text-gray-600">Estimasi: 2-3 hari kerja</div>
                                         </div>
                                         <div class="text-right">
-                                            <div class="font-medium text-gray-900">Rp 10.000</div>
+                                            <div class="font-medium text-gray-900">Rp 9.000</div>
                                         </div>
                                     </div>
                                 </div>
                             </label>
                             
                             <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <input type="radio" name="shipping_expedition" value="jne_yes" class="text-blue-600 focus:ring-blue-500" data-cost="15000" data-estimation="1-2 hari">
+                                <input type="radio" name="shipping_expedition" value="jne_yes" class="text-blue-600 focus:ring-blue-500" data-cost="14000" data-estimation="1-2 hari">
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
                                         <div>
@@ -181,7 +181,37 @@
                                             <div class="text-sm text-gray-600">Estimasi: 1-2 hari kerja</div>
                                         </div>
                                         <div class="text-right">
-                                            <div class="font-medium text-gray-900">Rp 15.000</div>
+                                            <div class="font-medium text-gray-900">Rp 14.000</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="shipping_expedition" value="jnt_reg" class="text-blue-600 focus:ring-blue-500" data-cost="8500" data-estimation="2-4 hari">
+                                <div class="ml-3 flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900">J&T REG (Regular)</div>
+                                            <div class="text-sm text-gray-600">Estimasi: 2-4 hari kerja</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-medium text-gray-900">Rp 8.500</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="shipping_expedition" value="sicepat_reg" class="text-blue-600 focus:ring-blue-500" data-cost="8000" data-estimation="2-3 hari">
+                                <div class="ml-3 flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900">SiCepat REG (Regular)</div>
+                                            <div class="text-sm text-gray-600">Estimasi: 2-3 hari kerja</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-medium text-gray-900">Rp 8.000</div>
                                         </div>
                                     </div>
                                 </div>
@@ -221,8 +251,8 @@
                 
                 <!-- Hidden payment method field -->
                 <input type="hidden" name="payment_method" value="midtrans">
+                </form>
             </div>
-            </form>
         </div>
 
         <!-- Order Summary Sidebar -->
@@ -332,12 +362,92 @@ document.addEventListener('DOMContentLoaded', function() {
                 addressInput.value = selectedOption.dataset.address;
                 cityInput.value = selectedOption.dataset.city;
                 provinceInput.value = selectedOption.dataset.province;
-                postalCodeInput.value = selectedOption.dataset.postalCode;
+                postalCodeInput.value = selectedOption.dataset.postalCode || selectedOption.getAttribute('data-postal-code');
             }
         });
     }
     
+    // Calculate shipping when city changes
+    if (cityInput) {
+        cityInput.addEventListener('blur', function() {
+            if (this.value.trim()) {
+                calculateShippingCost(this.value.trim());
+            }
+        });
+    }
+    
+    // Function to calculate shipping cost
+    function calculateShippingCost(city) {
+        fetch('{{ route("shipping.calculate") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ city: city })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const shippingContainer = document.getElementById('shipping-options');
+            if (!shippingContainer) return;
+            
+            // Clear existing options
+            shippingContainer.innerHTML = '';
+            
+            // Add new shipping options
+            Object.keys(data).forEach(key => {
+                const option = data[key];
+                const optionHtml = `
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input type="radio" name="shipping_expedition" value="${key}" class="text-blue-600 focus:ring-blue-500" data-cost="${option.cost}" data-estimation="${option.estimation}">
+                        <div class="ml-3 flex-1">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900">${option.logistic} ${option.service}</div>
+                                    <div class="text-sm text-gray-600">Estimasi: ${option.estimation}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-medium text-gray-900">Rp ${option.cost.toLocaleString('id-ID')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                `;
+                shippingContainer.insertAdjacentHTML('beforeend', optionHtml);
+            });
+            
+            // Re-attach event listeners for new radio buttons
+            attachShippingListeners();
+        })
+        .catch(error => {
+            console.error('Error calculating shipping:', error);
+            // Keep default shipping options if API fails
+        });
+    }
+    
+    // Function to attach shipping listeners
+    function attachShippingListeners() {
+        const shippingRadios = document.querySelectorAll('input[name="shipping_expedition"]');
+        shippingRadios.forEach(radio => {
+            radio.addEventListener('change', handleShippingChange);
+        });
+    }
+    
     // Handle shipping expedition selection
+    function handleShippingChange() {
+        if (this.checked) {
+            currentShippingCost = parseInt(this.dataset.cost);
+            shippingCostElement.textContent = 'Rp ' + currentShippingCost.toLocaleString('id-ID');
+            selectedShipping.textContent = this.parentElement.querySelector('.font-medium').textContent + ' - ' + this.dataset.estimation;
+            updateTotal();
+            updateSelectedInfo();
+        }
+    }
+    
+    // Initial attachment
+    attachShippingListeners();
+    
+    // Legacy code for backward compatibility
     const shippingRadios = document.querySelectorAll('input[name="shipping_expedition"]');
     shippingRadios.forEach(radio => {
         radio.addEventListener('change', function() {
@@ -373,6 +483,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.processCheckout = function() {
         try {
             console.log('Checkout button clicked');
+            console.log('Current shipping cost:', currentShippingCost);
+            console.log('Base total:', baseTotal);
             
             const form = document.getElementById('checkout-form');
             if (!form) {
@@ -454,7 +566,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         onError: function(result) {
                             console.log('Payment error:', result);
-                            alert('Pembayaran gagal. Silakan coba lagi.');
+                            alert('Pembayaran gagal. Anda dapat melanjutkan pembayaran nanti dari halaman pesanan.');
+                            window.location.href = '{{ route("profile.orders") }}';
                         },
                         onClose: function() {
                             console.log('Payment popup closed');

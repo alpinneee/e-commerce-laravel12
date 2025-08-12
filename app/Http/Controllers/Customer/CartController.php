@@ -77,6 +77,7 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'size' => 'required|integer|min:36|max:44',
             'quantity' => 'required|integer|min:1',
         ]);
         
@@ -96,6 +97,7 @@ class CartController extends Controller
                 [
                     'user_id' => Auth::id(),
                     'product_id' => $product->id,
+                    'size' => $request->size,
                 ],
                 [
                     'quantity' => $request->quantity,
@@ -109,7 +111,7 @@ class CartController extends Controller
             
             $found = false;
             foreach ($cart as &$item) {
-                if ($item['product_id'] == $product->id) {
+                if ($item['product_id'] == $product->id && $item['size'] == $request->size) {
                     $item['quantity'] = $request->quantity;
                     $found = true;
                     break;
@@ -119,6 +121,7 @@ class CartController extends Controller
             if (!$found) {
                 $cart[] = [
                     'product_id' => $product->id,
+                    'size' => $request->size,
                     'quantity' => $request->quantity,
                 ];
             }

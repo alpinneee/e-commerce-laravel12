@@ -38,7 +38,7 @@
                 <div class="p-3">
                     <div class="mb-3">
                         <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Navigation</h3>
-                        <nav class="space-y-1">
+                        <nav class="space-y-2">
                             <a href="{{ route('admin.dashboard') }}" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md {{ request()->routeIs('admin.dashboard') ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
@@ -72,6 +72,7 @@
                                     <a href="{{ route('admin.products.index') }}" class="block px-2 py-1 text-xs text-gray-600 hover:text-gray-900">All Products</a>
                                     <a href="{{ route('admin.products.create') }}" class="block px-2 py-1 text-xs text-gray-600 hover:text-gray-900">Add Product</a>
                                     <a href="{{ route('admin.categories.index') }}" class="block px-2 py-1 text-xs text-gray-600 hover:text-gray-900">Categories</a>
+                                    <a href="{{ route('admin.product-sizes.index') }}" class="block px-2 py-1 text-xs text-gray-600 hover:text-gray-900">Ukuran Produk</a>
                                 </div>
                             </div>
                             
@@ -83,6 +84,13 @@
                                     Orders
                                 </div>
                                 <span class="bg-gray-200 text-gray-700 text-xs font-medium px-1.5 py-0.5 rounded-full">12</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.banners.index') }}" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md {{ request()->routeIs('admin.banners.*') ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-100' }}">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Banner Iklan
                             </a>
                             
                             <div class="relative">
@@ -154,6 +162,7 @@
                                 </svg>
                                 Help & Support
                             </a>
+
                         </nav>
                     </div>
                 </div>

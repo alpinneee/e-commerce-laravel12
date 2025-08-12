@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -14,6 +15,9 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // Get active banners for carousel
+        $banners = Banner::active()->ordered()->get();
+        
         // Get featured products
         $featuredProducts = Product::active()
             ->inStock()
@@ -37,7 +41,7 @@ class HomeController extends Controller
             ->take(6)
             ->get();
         
-        return view('customer.home', compact('featuredProducts', 'saleProducts', 'categories'));
+        return view('customer.home', compact('banners', 'featuredProducts', 'saleProducts', 'categories'));
     }
     
     /**

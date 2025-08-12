@@ -8,7 +8,6 @@
     <div class="flex items-center justify-between">
         <h1 class="text-xl font-bold text-gray-900">Products</h1>
         <div class="flex gap-2">
-            <a href="{{ route('admin.categories.create') }}" class="px-3 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition">+ Kategori</a>
             <a href="{{ route('admin.products.create') }}" class="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">+ Produk</a>
         </div>
     </div>

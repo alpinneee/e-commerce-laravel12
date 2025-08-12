@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -177,10 +178,17 @@ class ProductController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         
+        // Log request data for debugging
+        Log::info('Product Update Request', [
+            'product_id' => $product->id,
+            'request_data' => $request->all()
+        ]);
+        
         DB::beginTransaction();
         
         try {
-            // Update slug if name changed
+            // Generate slug if name changed
+            $slug = $product->slug;
             if ($product->name != $request->name) {
                 $slug = Str::slug($request->name);
                 $originalSlug = $slug;
@@ -190,14 +198,13 @@ class ProductController extends Controller
                     $slug = "{$originalSlug}-{$count}";
                     $count++;
                 }
-                
-                $product->slug = $slug;
             }
             
             // Update product
-            $product->update([
+            $updateData = [
                 'category_id' => $request->category_id,
                 'name' => $request->name,
+                'slug' => $slug,
                 'description' => $request->description,
                 'price' => $request->price,
                 'discount_price' => $request->discount_price,
@@ -207,7 +214,13 @@ class ProductController extends Controller
                 'is_active' => $request->has('is_active'),
                 'meta_title' => $request->meta_title ?? $request->name,
                 'meta_description' => $request->meta_description,
-            ]);
+            ];
+            
+            Log::info('Product Update Data', ['update_data' => $updateData]);
+            
+            $product->update($updateData);
+            
+            Log::info('Product Updated Successfully', ['product_id' => $product->id]);
             
             // Handle new images
             if ($request->hasFile('images')) {

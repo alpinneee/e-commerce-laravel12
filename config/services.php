@@ -38,5 +38,11 @@ return [
         'is_sanitized' => env('MIDTRANS_IS_SANITIZED', true),
         'is_3ds' => env('MIDTRANS_IS_3DS', true),
     ],
+    
+    'shipper' => [
+        'api_url' => env('SHIPPER_API_URL', 'https://sandbox-api.shipper.id'),
+        'api_key' => env('SHIPPER_API_KEY'),
+        'is_production' => env('SHIPPER_IS_PRODUCTION', false),
+    ],
 
 ];

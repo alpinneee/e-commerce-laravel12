@@ -10,6 +10,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ShippingAddress;
 use App\Services\MidtransService;
+use App\Services\ShipperService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,10 +22,12 @@ use Illuminate\Support\Str;
 class CheckoutController extends Controller
 {
     protected $midtransService;
+    protected $shipperService;
 
-    public function __construct(MidtransService $midtransService)
+    public function __construct(MidtransService $midtransService, ShipperService $shipperService)
     {
         $this->midtransService = $midtransService;
+        $this->shipperService = $shipperService;
     }
 
     /**
@@ -124,7 +127,7 @@ class CheckoutController extends Controller
             'province' => 'required|string|max:100',
             'postal_code' => 'required|string|max:20',
             'payment_method' => 'required|in:midtrans',
-            'shipping_expedition' => 'required|in:jne_reg,jne_yes,jnt_regular,jnt_express,sicepat_regular,sicepat_halu,pos_regular,pos_express',
+            'shipping_expedition' => 'required|string',
             'shipping_cost' => 'required|numeric|min:0',
             'cod_fee' => 'nullable|numeric|min:0',
             'save_address' => 'nullable|boolean',
@@ -435,5 +438,95 @@ class CheckoutController extends Controller
         return view('customer.checkout-success', compact('order'));
     }
 
+    /**
+     * Continue payment for existing order
+     */
+    public function continuePayment(Order $order)
+    {
+        // Check if user can access this order
+        if (Auth::check() && $order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to order');
+        }
+
+        // Only allow payment continuation for pending orders
+        if ($order->payment_status !== 'pending') {
+            return redirect()->route('profile.orders')
+                ->with('error', 'Order payment cannot be continued.');
+        }
+
+        try {
+            $snapToken = $this->midtransService->createSnapToken($order);
+            return view('customer.continue-payment', compact('order', 'snapToken'));
+        } catch (\Exception $e) {
+            Log::error('Failed to create snap token for order: ' . $order->order_number . ' - ' . $e->getMessage());
+            return redirect()->route('profile.orders')
+                ->with('error', 'Payment gateway error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Calculate shipping cost via AJAX
+     */
+    public function calculateShipping(Request $request)
+    {
+        $request->validate([
+            'city' => 'required|string',
+            'weight' => 'nullable|numeric|min:0'
+        ]);
+
+        $weight = $request->weight ?? $this->calculateCartWeight();
+        $destination = $request->city;
+        
+        $shippingRates = $this->shipperService->getShippingRates(6, $destination, $weight);
+        
+        $shippingOptions = [];
+        if (isset($shippingRates['data']['pricing'])) {
+            foreach ($shippingRates['data']['pricing'] as $rate) {
+                $key = strtolower($rate['logistic']['code'] . '_' . $rate['rate']['code']);
+                $shippingOptions[$key] = [
+                    'cost' => $rate['final_price'],
+                    'estimation' => $rate['min_day'] . '-' . $rate['max_day'] . ' hari',
+                    'logistic' => $rate['logistic']['name'],
+                    'service' => $rate['rate']['name']
+                ];
+            }
+        }
+
+        return response()->json($shippingOptions);
+    }
+
+    /**
+     * Calculate total weight of cart items
+     */
+    private function calculateCartWeight()
+    {
+        $totalWeight = 0;
+        
+        if (Auth::check()) {
+            $cartItems = Cart::where('user_id', Auth::id())->with('product')->get();
+        } else {
+            $sessionCart = Session::get('cart', []);
+            $productIds = array_column($sessionCart, 'product_id');
+            $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+            
+            $cartItems = collect();
+            foreach ($sessionCart as $item) {
+                if (isset($products[$item['product_id']])) {
+                    $cartItem = (object) [
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'product' => $products[$item['product_id']],
+                    ];
+                    $cartItems->push($cartItem);
+                }
+            }
+        }
+        
+        foreach ($cartItems as $item) {
+            $totalWeight += ($item->product->weight ?? 500) * $item->quantity;
+        }
+        
+        return max(500, $totalWeight); // Minimum 500g
+    }
 
 }
