@@ -1,0 +1,8 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "echo 'No build needed'",
+        "dev": "echo 'No dev needed'"
+    }
+}
