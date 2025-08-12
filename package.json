@@ -4,5 +4,8 @@
     "scripts": {
         "build": "echo 'No build needed'",
         "dev": "echo 'No dev needed'"
+    },
+    "devDependencies": {
+        "vite": "^5.0"
     }
 }
