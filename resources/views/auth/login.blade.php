@@ -64,7 +64,7 @@ use Illuminate\Support\Facades\Route;
                 </div>
             </div>
             
-            <div class="mt-4 space-y-2">
+            <div class="mt-4">
                 <a href="{{ route('google.redirect') }}" 
                    class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-300">
                     <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -74,10 +74,6 @@ use Illuminate\Support\Facades\Route;
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
                     Masuk dengan Google
-                </a>
-                <a href="/google-test-form" 
-                   class="w-full flex justify-center items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-all duration-300">
-                    Test Google Login (Backup)
                 </a>
             </div>
         </div>
