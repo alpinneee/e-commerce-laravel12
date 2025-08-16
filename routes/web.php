@@ -83,6 +83,9 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
     Route::delete('/addresses/{address}', [CustomerProfileController::class, 'deleteAddress'])->name('addresses.delete');
 });
 
+// Order Review Route
+Route::middleware(['auth'])->post('/orders/{order}/review', [CustomerProfileController::class, 'storeReview'])->name('orders.review');
+
 // Orders Index Route (for compatibility with menu/profile links)
 Route::middleware(['auth'])->get('/orders', function () {
     return redirect()->route('profile.orders');
@@ -119,6 +122,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     
     // Admin Product Routes
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
+    Route::delete('product-images/{id}', [\App\Http\Controllers\Admin\ProductImageController::class, 'destroy'])->name('product-images.destroy');
     
     // Admin Category Routes
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
@@ -190,6 +194,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
 });
+
+// Google OAuth Routes
+require __DIR__.'/google.php';
+require __DIR__.'/google-fix.php';
+require __DIR__.'/google-test.php';
+
+// Test Routes
+require __DIR__.'/test.php';
+require __DIR__.'/debug.php';
 
 // Laravel Breeze Routes
 require __DIR__.'/auth.php';

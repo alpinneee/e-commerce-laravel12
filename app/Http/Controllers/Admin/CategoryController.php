@@ -189,4 +189,6 @@ class CategoryController extends Controller
             return back()->with('error', 'An error occurred while deleting the category: ' . $e->getMessage());
         }
     }
+
+
 }

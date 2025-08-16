@@ -56,7 +56,7 @@ class MidtransService
     private function buildTransactionParams(Order $order)
     {
         // Generate unique order ID to avoid duplicates
-        $uniqueOrderId = $order->order_number . '-' . time();
+        $uniqueOrderId = $order->order_number . '-' . $order->created_at->timestamp;
         
         return [
             'transaction_details' => [
@@ -143,8 +143,27 @@ class MidtransService
      */
     private function updateOrderPaymentStatus(Order $order, string $paymentStatus, string $note)
     {
+        // Get transaction details from Midtrans
+        $transactionDetails = null;
+        try {
+            $notification = new Notification();
+            $transactionDetails = [
+                'transaction_id' => $notification->transaction_id ?? null,
+                'order_id' => $notification->order_id ?? null,
+                'payment_type' => $notification->payment_type ?? null,
+                'transaction_time' => $notification->transaction_time ?? null,
+                'transaction_status' => $notification->transaction_status ?? null,
+                'fraud_status' => $notification->fraud_status ?? null,
+                'gross_amount' => $notification->gross_amount ?? null,
+                'currency' => $notification->currency ?? 'IDR',
+            ];
+        } catch (\Exception $e) {
+            Log::warning('Could not get transaction details: ' . $e->getMessage());
+        }
+
         $order->update([
             'payment_status' => $paymentStatus,
+            'payment_details' => $transactionDetails,
             'notes' => $order->notes . "\n\nMidtrans: " . $note . ' at ' . now()->format('Y-m-d H:i:s')
         ]);
 
@@ -168,6 +187,21 @@ class MidtransService
             Log::error('Failed to get Midtrans transaction status: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Get transaction details for order
+     */
+    public function getTransactionDetails(Order $order)
+    {
+        // First try to get from stored payment_details
+        if ($order->payment_details) {
+            return $order->payment_details;
+        }
+
+        // If not stored, try to fetch from Midtrans
+        $uniqueOrderId = $order->order_number . '-' . $order->created_at->timestamp;
+        return $this->getTransactionStatus($uniqueOrderId);
     }
 
     /**

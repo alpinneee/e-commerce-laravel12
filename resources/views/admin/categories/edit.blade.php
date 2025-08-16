@@ -49,23 +49,28 @@
 
                 <!-- Current Image -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Saat Ini</label>
                     @if($category->image)
                         <img src="{{ $category->image_url }}" alt="{{ $category->name }}" 
-                             class="w-32 h-32 object-cover rounded-lg">
+                             class="w-24 h-24 object-cover rounded border">
                     @else
-                        <p class="text-gray-500">No image uploaded</p>
+                        <p class="text-gray-500">Belum ada gambar</p>
                     @endif
                 </div>
 
                 <!-- New Image -->
                 <div class="md:col-span-2">
-                    <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Upload New Image</label>
+                    <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar Baru</label>
                     <input type="file" name="image" id="image" accept="image/*" 
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           onchange="previewNewImage(this)">
+                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF. Ukuran maksimal: 2MB. Disarankan ukuran 300x300px.</p>
                     @error('image')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
+                    <div id="newImagePreview" class="mt-2 hidden">
+                        <img id="newPreview" class="w-24 h-24 object-cover rounded border">
+                    </div>
                 </div>
 
                 <!-- Status -->
@@ -87,4 +92,24 @@
         </form>
     </div>
 </div>
+
+<script>
+function previewNewImage(input) {
+    const preview = document.getElementById('newPreview');
+    const previewContainer = document.getElementById('newImagePreview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            previewContainer.classList.remove('hidden');
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        previewContainer.classList.add('hidden');
+    }
+}
+</script>
 @endsection 

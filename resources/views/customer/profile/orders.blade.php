@@ -93,11 +93,6 @@
                                         <a href="{{ route('profile.orders.show', $order) }}" class="text-blue-600 hover:text-blue-800 font-medium">
                                             View Order Details
                                         </a>
-                                        @if($order->payment_method !== 'cod' && $order->payment_status === 'pending')
-                                            <a href="{{ route('order.continue-payment', $order) }}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium">
-                                                💳 Lanjutkan Pembayaran
-                                            </a>
-                                        @endif
                                     </div>
                                     @if($order->status === 'delivered')
                                         <button class="text-green-600 hover:text-green-800 font-medium">

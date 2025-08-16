@@ -140,8 +140,11 @@
                         @foreach($products as $product)
                             <div class="group relative border border-gray-200 rounded-md p-2 bg-white hover:shadow-sm transition">
                                 <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded bg-gray-100 lg:aspect-none group-hover:opacity-80 lg:h-48 flex items-center justify-center">
-                                    @if($product->images->isNotEmpty())
-                                        <img src="{{ asset('storage/' . $product->images->where('is_primary', true)->first()->image_path) }}" 
+                                    @php
+                                        $primaryImage = $product->images->where('is_primary', true)->first();
+                                    @endphp
+                                    @if($primaryImage && $primaryImage->image_path)
+                                        <img src="{{ asset('storage/' . $primaryImage->image_path) }}" 
                                             alt="{{ $product->name }}" 
                                             class="h-full w-full object-cover object-center lg:h-full lg:w-full">
                                     @else

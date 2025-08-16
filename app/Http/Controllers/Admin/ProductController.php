@@ -246,8 +246,15 @@ class ProductController extends Controller
                     ->get();
                 
                 foreach ($imagesToDelete as $image) {
-                    if (Storage::disk('public')->exists($image->image_path)) {
-                        Storage::disk('public')->delete($image->image_path);
+                    try {
+                        if ($image->image_path && Storage::disk('public')->exists($image->image_path)) {
+                            Storage::disk('public')->delete($image->image_path);
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to delete image file', [
+                            'image_path' => $image->image_path,
+                            'error' => $e->getMessage()
+                        ]);
                     }
                     $image->delete();
                 }
@@ -292,8 +299,16 @@ class ProductController extends Controller
         try {
             // Delete product images from storage
             foreach ($product->images as $image) {
-                if (Storage::disk('public')->exists($image->image_path)) {
-                    Storage::disk('public')->delete($image->image_path);
+                try {
+                    if ($image->image_path && Storage::disk('public')->exists($image->image_path)) {
+                        Storage::disk('public')->delete($image->image_path);
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Failed to delete product image file', [
+                        'product_id' => $product->id,
+                        'image_path' => $image->image_path,
+                        'error' => $e->getMessage()
+                    ]);
                 }
             }
             

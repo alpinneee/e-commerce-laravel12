@@ -148,6 +148,84 @@
             </div>
         </div>
 
+        <!-- Midtrans Invoice -->
+        @if($order->payment_method === 'midtrans' && isset($transactionDetails))
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 animate-slide-up animation-delay-4000">
+            <h2 class="text-xl font-semibold mb-4 text-blue-900 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                    <path d="M6 8h8v2H6V8zm0 4h4v2H6v-2z"/>
+                </svg>
+                Invoice Midtrans
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    @if(isset($transactionDetails['transaction_id']))
+                    <div class="flex justify-between">
+                        <span class="text-blue-700 font-medium">Transaction ID</span>
+                        <span class="font-mono text-sm bg-white px-2 py-1 rounded">{{ $transactionDetails['transaction_id'] }}</span>
+                    </div>
+                    @endif
+                    
+                    @if(isset($transactionDetails['payment_type']))
+                    <div class="flex justify-between">
+                        <span class="text-blue-700 font-medium">Payment Type</span>
+                        <span class="font-medium">{{ strtoupper($transactionDetails['payment_type']) }}</span>
+                    </div>
+                    @endif
+                    
+                    @if(isset($transactionDetails['transaction_time']))
+                    <div class="flex justify-between">
+                        <span class="text-blue-700 font-medium">Transaction Time</span>
+                        <span class="font-medium">{{ date('d M Y H:i', strtotime($transactionDetails['transaction_time'])) }}</span>
+                    </div>
+                    @endif
+                </div>
+                
+                <div class="space-y-3">
+                    @if(isset($transactionDetails['transaction_status']))
+                    <div class="flex justify-between">
+                        <span class="text-blue-700 font-medium">Status</span>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium
+                            @if($transactionDetails['transaction_status'] === 'settlement' || $transactionDetails['transaction_status'] === 'capture')
+                                bg-green-100 text-green-800
+                            @elseif($transactionDetails['transaction_status'] === 'pending')
+                                bg-yellow-100 text-yellow-800
+                            @else
+                                bg-red-100 text-red-800
+                            @endif">
+                            {{ strtoupper($transactionDetails['transaction_status']) }}
+                        </span>
+                    </div>
+                    @endif
+                    
+                    @if(isset($transactionDetails['gross_amount']))
+                    <div class="flex justify-between">
+                        <span class="text-blue-700 font-medium">Amount</span>
+                        <span class="font-bold">{{ $transactionDetails['currency'] ?? 'IDR' }} {{ number_format($transactionDetails['gross_amount'], 0, ',', '.') }}</span>
+                    </div>
+                    @endif
+                    
+                    @if(isset($transactionDetails['fraud_status']) && $transactionDetails['fraud_status'] !== 'accept')
+                    <div class="flex justify-between">
+                        <span class="text-blue-700 font-medium">Fraud Status</span>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            {{ strtoupper($transactionDetails['fraud_status']) }}
+                        </span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-blue-200">
+                <p class="text-xs text-blue-600">
+                    <strong>Note:</strong> This is your official payment receipt from Midtrans. Keep this for your records.
+                </p>
+            </div>
+        </div>
+        @endif
+
         <!-- Next Steps -->
         <div class="border-t pt-8 animate-slide-up animation-delay-4000">
             <h2 class="text-xl font-semibold mb-4 text-gray-900">Langkah Selanjutnya</h2>
@@ -235,6 +313,13 @@
                class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-medium text-center hover:bg-green-700 transition duration-200">
                 📱 Lihat Detail Pesanan
             </a>
+            @endif
+            
+            @if($order->payment_method === 'midtrans' && isset($transactionDetails))
+            <button onclick="window.print()" 
+                    class="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg font-medium text-center hover:bg-purple-700 transition duration-200">
+                🖨️ Print Invoice
+            </button>
             @endif
             
             <a href="{{ route('home') }}" 

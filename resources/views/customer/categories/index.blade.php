@@ -44,7 +44,7 @@
                                 @if($category->image)
                                     <img src="{{ $category->image_url }}" 
                                         alt="{{ $category->name }}" 
-                                        class="h-20 w-20 object-cover object-center group-hover:opacity-80 rounded">
+                                        class="h-20 w-20 object-cover object-center group-hover:opacity-80 rounded bg-white">
                                 @else
                                     <div class="flex h-20 w-20 items-center justify-center bg-gray-100 group-hover:bg-gray-200 rounded">
                                         <svg class="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

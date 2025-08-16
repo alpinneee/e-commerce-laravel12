@@ -41,9 +41,20 @@
                             <!-- Avatar -->
                             <div class="flex items-center space-x-6">
                                 <div class="flex-shrink-0">
-                                    @if($user->avatar)
-                                        <img class="h-20 w-20 rounded-full object-cover" src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}">
+                                    @if($user->avatar && (str_starts_with($user->avatar, 'http') || str_starts_with($user->avatar, 'https')))
+                                        <!-- Google Avatar -->
+                                        <img class="h-20 w-20 rounded-full object-cover" src="{{ $user->avatar }}" alt="{{ $user->name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center" style="display:none;">
+                                            <span class="text-2xl text-gray-600">{{ substr($user->name, 0, 1) }}</span>
+                                        </div>
+                                    @elseif($user->avatar)
+                                        <!-- Local Avatar -->
+                                        <img class="h-20 w-20 rounded-full object-cover" src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center" style="display:none;">
+                                            <span class="text-2xl text-gray-600">{{ substr($user->name, 0, 1) }}</span>
+                                        </div>
                                     @else
+                                        <!-- Default Avatar -->
                                         <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center">
                                             <span class="text-2xl text-gray-600">{{ substr($user->name, 0, 1) }}</span>
                                         </div>

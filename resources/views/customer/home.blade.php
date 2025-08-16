@@ -2,6 +2,8 @@
 
 @section('title', 'Beranda')
 
+
+
 @section('content')
 <div class="bg-white">
     <!-- Hero Carousel Section -->
@@ -63,7 +65,11 @@
                 <div class="group relative border border-gray-200 rounded-md p-2 bg-white hover:shadow-sm transition">
                     <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded bg-gray-100 lg:aspect-none group-hover:opacity-80 lg:h-48 flex items-center justify-center">
                         @if($product->images->isNotEmpty())
-                            <img src="{{ asset('storage/' . $product->images->where('is_primary', true)->first()->image_path) }}" 
+                            @php
+                                $primaryImage = $product->images->where('is_primary', true)->first();
+                                $imagePath = $primaryImage ? $primaryImage->image_path : $product->images->first()->image_path;
+                            @endphp
+                            <img src="{{ asset('storage/' . $imagePath) }}" 
                                 alt="{{ $product->name }}" 
                                 class="h-full w-full object-cover object-center lg:h-full lg:w-full">
                         @else
@@ -117,10 +123,10 @@
                     <a href="{{ route('products.category', $category->slug) }}" class="group border border-gray-200 rounded-md p-2 bg-white hover:shadow-sm transition flex flex-col items-center">
                         <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded bg-gray-100 flex items-center justify-center">
                             @if($category->image)
-                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="h-20 w-20 object-cover object-center group-hover:opacity-80 rounded">
+                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="h-20 w-20 object-cover object-center group-hover:opacity-80 rounded bg-white">
                             @else
                                 <div class="flex h-20 w-20 items-center justify-center bg-gray-100 group-hover:bg-gray-200 rounded">
-                                    <span class="text-base font-medium text-gray-600">{{ $category->name }}</span>
+                                    <span class="text-xs font-medium text-gray-600 text-center px-1">{{ substr($category->name, 0, 8) }}</span>
                                 </div>
                             @endif
                         </div>
@@ -151,7 +157,11 @@
                     <div class="group relative border border-gray-200 rounded-md p-2 bg-white hover:shadow-sm transition">
                         <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded bg-gray-100 lg:aspect-none group-hover:opacity-80 lg:h-48 flex items-center justify-center">
                             @if($product->images->isNotEmpty())
-                                <img src="{{ asset('storage/' . $product->images->where('is_primary', true)->first()->image_path) }}" 
+                                @php
+                                    $primaryImage = $product->images->where('is_primary', true)->first();
+                                    $imagePath = $primaryImage ? $primaryImage->image_path : $product->images->first()->image_path;
+                                @endphp
+                                <img src="{{ asset('storage/' . $imagePath) }}" 
                                     alt="{{ $product->name }}" 
                                     class="h-full w-full object-cover object-center lg:h-full lg:w-full">
                             @else

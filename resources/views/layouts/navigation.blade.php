@@ -23,7 +23,23 @@
                     @auth
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(\Illuminate\Support\Facades\Auth::user()->name) }}&background=6366f1&color=fff" alt="{{ \Illuminate\Support\Facades\Auth::user()->name }}" class="w-7 h-7 rounded-full">
+                                @php
+                                    $user = \Illuminate\Support\Facades\Auth::user();
+                                    $avatarUrl = $user->avatar;
+                                    
+                                    if ($avatarUrl && (str_starts_with($avatarUrl, 'http') || str_starts_with($avatarUrl, 'https'))) {
+                                        // Google avatar URL
+                                        $finalAvatarUrl = $avatarUrl;
+                                    } elseif ($avatarUrl) {
+                                        // Local avatar
+                                        $finalAvatarUrl = asset('storage/' . $avatarUrl);
+                                    } else {
+                                        // Default avatar
+                                        $finalAvatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=6366f1&color=fff';
+                                    }
+                                @endphp
+                                <!-- Debug: {{ $finalAvatarUrl }} -->
+                                <img src="{{ $finalAvatarUrl }}" alt="{{ $user->name }}" class="w-7 h-7 rounded-full object-cover" onerror="console.log('Avatar failed to load:', this.src); this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=6366f1&color=fff';">
                             </button>
                             <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
                                 <div class="px-4 py-2 border-b border-gray-100">

@@ -31,7 +31,11 @@
         </div>
         <div>
             <label class="block font-medium mb-1">Gambar Kategori</label>
-            <input type="file" name="image" class="w-full border rounded px-3 py-2">
+            <input type="file" name="image" accept="image/*" class="w-full border rounded px-3 py-2" onchange="previewImage(this)">
+            <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF. Ukuran maksimal: 2MB. Disarankan ukuran 300x300px.</p>
+            <div id="imagePreview" class="mt-2 hidden">
+                <img id="preview" class="w-24 h-24 object-cover rounded border">
+            </div>
         </div>
         <div>
             <label class="block font-medium mb-1">Status Aktif</label>
@@ -50,4 +54,24 @@
         </div>
     </form>
 </div>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('preview');
+    const previewContainer = document.getElementById('imagePreview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            previewContainer.classList.remove('hidden');
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        previewContainer.classList.add('hidden');
+    }
+}
+</script>
 @endsection 

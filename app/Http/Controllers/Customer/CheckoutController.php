@@ -260,6 +260,7 @@ class CheckoutController extends Controller
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
+                    'size' => $item->size ?? null,
                     'quantity' => $item->quantity,
                     'price' => $price,
                     'total' => $price * $item->quantity,
@@ -432,10 +433,16 @@ class CheckoutController extends Controller
         
         $order = Order::with(['items.product'])->findOrFail($orderId);
         
+        // Get Midtrans transaction details for invoice
+        $transactionDetails = null;
+        if ($order->payment_method === 'midtrans') {
+            $transactionDetails = $this->midtransService->getTransactionDetails($order);
+        }
+        
         // Clear the session data
         Session::forget('completed_order');
         
-        return view('customer.checkout-success', compact('order'));
+        return view('customer.checkout-success', compact('order', 'transactionDetails'));
     }
 
     /**

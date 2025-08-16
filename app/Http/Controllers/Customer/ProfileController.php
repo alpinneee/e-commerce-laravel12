@@ -113,7 +113,13 @@ class ProfileController extends Controller
         
         $order->load('items.product');
         
-        return view('customer.profile.order-detail', compact('order'));
+        // Get Midtrans transaction details for invoice
+        $transactionDetails = null;
+        if ($order->payment_method === 'midtrans' && $order->payment_details) {
+            $transactionDetails = $order->payment_details;
+        }
+        
+        return view('customer.profile.order-detail', compact('order', 'transactionDetails'));
     }
     
     /**
@@ -214,5 +220,46 @@ class ProfileController extends Controller
         
         return redirect()->route('profile.addresses')
             ->with('success', 'Shipping address deleted successfully');
+    }
+    
+    /**
+     * Store reviews for order items.
+     */
+    public function storeReview(Request $request, Order $order)
+    {
+        // Check if order belongs to user
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+        
+        // Check if order is delivered
+        if ($order->status !== 'delivered') {
+            return back()->with('error', 'You can only review delivered orders.');
+        }
+        
+        $request->validate([
+            'reviews.*.rating' => 'required|integer|min:1|max:5',
+            'reviews.*.comment' => 'required|string|max:1000',
+        ]);
+        
+        foreach ($request->reviews as $productId => $reviewData) {
+            // Check if user already reviewed this product for this order
+            $existingReview = \App\Models\Review::where('user_id', Auth::id())
+                ->where('product_id', $productId)
+                ->where('order_id', $order->id)
+                ->first();
+                
+            if (!$existingReview) {
+                \App\Models\Review::create([
+                    'user_id' => Auth::id(),
+                    'product_id' => $productId,
+                    'order_id' => $order->id,
+                    'rating' => $reviewData['rating'],
+                    'comment' => $reviewData['comment'],
+                ]);
+            }
+        }
+        
+        return back()->with('success', 'Reviews submitted successfully!');
     }
 }
