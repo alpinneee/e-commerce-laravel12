@@ -2,10 +2,25 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/gerai270/public_html/
-    - /bin/cp -R * $DEPLOYPATH
-    - /bin/cp .env.example $DEPLOYPATH/.env
-    - cd $DEPLOYPATH && composer install --no-dev --optimize-autoloader
+
+    # Copy semua file kecuali .git dan node_modules
+    - /bin/rsync -av --exclude='.git' --exclude='node_modules' ./ $DEPLOYPATH
+
+    # Masuk ke folder tujuan dan install dependencies
+    - cd $DEPLOYPATH && /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
+
+    # Set permission supaya Laravel bisa jalan
+    - chmod -R 775 $DEPLOYPATH/storage $DEPLOYPATH/bootstrap/cache
+    - chown -R $USER:$USER $DEPLOYPATH/storage $DEPLOYPATH/bootstrap/cache
+
+    # Clear & cache config/route/view
+    - cd $DEPLOYPATH && php artisan config:clear
+    - cd $DEPLOYPATH && php artisan cache:clear
+    - cd $DEPLOYPATH && php artisan route:clear
+    - cd $DEPLOYPATH && php artisan view:clear
     - cd $DEPLOYPATH && php artisan config:cache
     - cd $DEPLOYPATH && php artisan route:cache
     - cd $DEPLOYPATH && php artisan view:cache
+
+    # Buat symlink storage
     - cd $DEPLOYPATH && php artisan storage:link
