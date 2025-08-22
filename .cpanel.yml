@@ -1,26 +1,31 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/gerai270/public_html/
+    # Path untuk project Laravel penuh (bukan public_html)
+    - export PROJECTPATH=/home/gerai270/laravel_app
+    - export DEPLOYPATH=/home/gerai270/public_html
 
-    # Copy semua file kecuali .git dan node_modules
-    - /bin/rsync -av --exclude='.git' --exclude='node_modules' ./ $DEPLOYPATH
+    # Copy semua file project ke folder project khusus
+    - /bin/rsync -av --exclude='.git' --exclude='node_modules' ./ $PROJECTPATH
 
-    # Masuk ke folder tujuan dan install dependencies
-    - cd $DEPLOYPATH && /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
+    # Copy isi folder public Laravel ke public_html
+    - /bin/rsync -av $PROJECTPATH/public/ $DEPLOYPATH
 
-    # Set permission supaya Laravel bisa jalan
-    - chmod -R 775 $DEPLOYPATH/storage $DEPLOYPATH/bootstrap/cache
-    - chown -R $USER:$USER $DEPLOYPATH/storage $DEPLOYPATH/bootstrap/cache
+    # Masuk ke folder project
+    - cd $PROJECTPATH && /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
 
-    # Clear & cache config/route/view
-    - cd $DEPLOYPATH && php artisan config:clear
-    - cd $DEPLOYPATH && php artisan cache:clear
-    - cd $DEPLOYPATH && php artisan route:clear
-    - cd $DEPLOYPATH && php artisan view:clear
-    - cd $DEPLOYPATH && php artisan config:cache
-    - cd $DEPLOYPATH && php artisan route:cache
-    - cd $DEPLOYPATH && php artisan view:cache
+    # Set permission
+    - chmod -R 775 $PROJECTPATH/storage $PROJECTPATH/bootstrap/cache
+    - chown -R $USER:$USER $PROJECTPATH/storage $PROJECTPATH/bootstrap/cache
+
+    # Clear & cache Laravel
+    - cd $PROJECTPATH && php artisan config:clear
+    - cd $PROJECTPATH && php artisan cache:clear
+    - cd $PROJECTPATH && php artisan route:clear
+    - cd $PROJECTPATH && php artisan view:clear
+    - cd $PROJECTPATH && php artisan config:cache
+    - cd $PROJECTPATH && php artisan route:cache
+    - cd $PROJECTPATH && php artisan view:cache
 
     # Buat symlink storage
-    - cd $DEPLOYPATH && php artisan storage:link
+    - cd $PROJECTPATH && php artisan storage:link
